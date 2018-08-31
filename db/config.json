@@ -1,0 +1,28 @@
+{
+  "development": {
+    "username": "yyc_easy_audit",
+    "password": "secret",
+    "database": "yyc_easy_audit_development",
+    "host": "localhost"
+  },
+  "test": {
+    "username": "yyc_easy_audit",
+    "password": "secret",
+    "database": "yyc_easy_audit_test",
+    "host": "localhost"
+  },
+  "staging": {
+    "username": "yyc_easy_audit",
+    "password": "secret",
+    "database": "yyc_easy_audit_staging",
+    "host": "mongo",
+    "dialect": "mongodb"
+  },
+  "production": {
+    "username": "yyc_easy_audit",
+    "password": "secret",
+    "database": "yyc_easy_audit_production",
+    "host": "mongo",
+    "dialect": "mongodb"
+  }
+}
