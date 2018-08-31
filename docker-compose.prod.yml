@@ -1,0 +1,27 @@
+version: '3'
+services:
+  node:
+    build: .
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - VIRTUAL_HOST=audit.taxreformyyc.com
+      - LETSENCRYPT_HOST=audit.taxreformyyc.com
+      - LETSENCRYPT_EMAIL=daniel@example.com
+    volumes:
+      - .:/home/node
+      - /home/node/node_modules
+    depends_on:
+      - mongo
+  mongo:  
+    image: mongo
+    restart: unless-stopped
+    command: --smallfiles
+    volumes:
+      - yyc_easy_audit_data:/data/db
+volumes:
+  yyc_easy_audit_data:
+networks:
+  default:
+    external:
+      name: nginx-proxy
