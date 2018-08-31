@@ -13,5 +13,9 @@
     "express": "~4.15.5",
     "morgan": "~1.9.0",
     "serve-favicon": "~2.4.5"
+  },
+  "devDependencies": {
+    "jasmine": "^3.2.0",
+    "zombie": "^6.1.3"
   }
 }
