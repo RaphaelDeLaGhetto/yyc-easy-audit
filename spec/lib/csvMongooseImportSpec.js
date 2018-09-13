@@ -74,11 +74,18 @@ describe('csvMongooseImport', () => {
       });
     });
 
-/*
-    it('ignores empty fields', (done) => {
-      done.fail();
+  
+    it('ignores empty fields because `csvtojson` does not by default', (done) => {
+      importer.importCsv('spec/data/2018-missing-data.csv', (err, arr) => {
+        if (err) {
+          return done.fail(err);
+        }
+        expect(arr.length).toEqual(2);
+        expect(arr[0]['Taxation Status']).toBeUndefined();
+        expect(arr[1]['Assessment Class']).toBeUndefined();
+        done();
+      });
     });
-*/
 
   });
 
