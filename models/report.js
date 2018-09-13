@@ -10,6 +10,8 @@
 //               'Constructed On Original Foundation', 'Modified For Disabled', 'Old House On New Foundation',
 //               'Basementless', 'Penthouse']
 
+const GeoJSON = require('mongoose-geojson-schema');
+
 module.exports = function(mongoose) {
   const Schema = mongoose.Schema;
   const Types = Schema.Types;
@@ -72,6 +74,7 @@ module.exports = function(mongoose) {
     'Old House On New Foundation': Types.Boolean,
     'Basementless': Types.Boolean,
     'Penthouse': Types.Boolean,
+    'Google GeoJSON': Types.Point,
   }, {
     timestamps: true
   });

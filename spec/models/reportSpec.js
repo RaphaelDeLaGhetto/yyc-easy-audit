@@ -7,6 +7,8 @@ describe('Report', () => {
 
   /**
    * Model must haves
+   * `undefined` values actually test for membership. I don't know why this
+   * works. Try adding a pair that isn't part of the schema. See test below.
    */
   let required;
 
@@ -19,6 +21,33 @@ describe('Report', () => {
       'Total Living Area Above Grade': 1900,
       'Living Area Below Grade': 450,
       'Garage Area': 600,
+      'Taxation Status': undefined,
+      'Assessment Class': undefined,
+      'Property Type': undefined,
+      'Property Use': undefined,
+      'Valuation Approach': undefined,
+      'Market Adjustment': undefined,
+      'Community': undefined,
+      'Market Area': undefined,
+      'Sub Neighbourhood Code (SNC)': undefined,
+      'Sub Market Area': undefined,
+      'Influences': undefined,
+      'Land Use Designation': undefined,
+      'Building Count': undefined,
+      'Building Type/Structure': undefined,
+      'Year of Construction': undefined,
+      'Quality': undefined,
+      'Basement Suite': undefined,
+      'Walkout Basement': undefined,
+      'Garage Type': undefined,
+      'Fireplace Count': undefined,
+      'Renovation': undefined,
+      'Constructed On Original Foundation': undefined,
+      'Modified For Disabled': undefined,
+      'Old House On New Foundation': undefined,
+      'Basementless': undefined,
+      'Penthouse': undefined,
+      'Google GeoJSON': undefined,
     };
 
     done();
@@ -46,40 +75,11 @@ describe('Report', () => {
       });
     });
 
-    it('does not initialize non-essential fields', (done) => {
+    it('initializes the object with the correct key/value pairs', () => {
       let report = new Report(required);
-      report.save().then((obj) => {
-        expect(report['Taxation Status']).toBeUndefined();
-        expect(report['Assessment Class']).toBeUndefined();
-        expect(report['Property Type']).toBeUndefined();
-        expect(report['Property Use']).toBeUndefined();
-        expect(report['Valuation Approach']).toBeUndefined();
-        expect(report['Market Adjustment']).toBeUndefined();
-        expect(report['Community']).toBeUndefined();
-        expect(report['Market Area']).toBeUndefined();
-        expect(report['Sub Neighbourhood Code (SNC)']).toBeUndefined();
-        expect(report['Sub Market Area']).toBeUndefined();
-        expect(report['Influences']).toBeUndefined();
-        expect(report['Land Use Designation']).toBeUndefined();
-        expect(report['Building Count']).toBeUndefined();
-        expect(report['Building Type/Structure']).toBeUndefined();
-        expect(report['Year of Construction']).toBeUndefined();
-        expect(report['Quality']).toBeUndefined();
-        expect(report['Basement Suite']).toBeUndefined();
-        expect(report['Walkout Basement']).toBeUndefined();
-        expect(report['Garage Type']).toBeUndefined();
-        expect(report['Fireplace Count']).toBeUndefined();
-        expect(report['Renovation']).toBeUndefined();
-        expect(report['Constructed On Original Foundation']).toBeUndefined();
-        expect(report['Modified For Disabled']).toBeUndefined();
-        expect(report['Old House On New Foundation']).toBeUndefined();
-        expect(report['Basementless']).toBeUndefined();
-        expect(report['Penthouse']).toBeUndefined();
-        done();
-      }).catch((error) => {
-        done.fail(error);
-      });
-
+      // Believe it or not, the `undefined` values actually work to
+      // verify schema membership (see `required` def above)
+      expect(report).toEqual(jasmine.objectContaining(required));
     });
 
     it('does not allow an empty \'Current Assessed Value\' field', (done) => {
