@@ -11,6 +11,7 @@ Clone and install dependencies:
 
 ```
 npm install
+cp .env.example .env
 ```
 
 ## For Docker fans
@@ -48,6 +49,7 @@ Clone and install dependencies:
 
 ```
 npm install
+cp .env.example .env
 ```
 
 To start a Dockerized Mongo container, see above...
@@ -70,6 +72,15 @@ Clone:
 
 ```
 git clone 
+```
+
+Configure `.env`:
+
+```
+#
+# Scripts can do address geocoding. Need access to Google Maps API for that
+#
+GEOCODE_API=yourMapsApiKey
 ```
 
 In the application directory:
