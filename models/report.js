@@ -74,7 +74,9 @@ module.exports = function(mongoose) {
     'Old House On New Foundation': Types.Boolean,
     'Basementless': Types.Boolean,
     'Penthouse': Types.Boolean,
-    'Google GeoJSON': Types.Point,
+    'Location GeoJSON': Types.Point,
+    'Ascending Neighbour': { type: Schema.Types.ObjectId, ref: 'Report' },
+    'Descending Neighbour': { type: Schema.Types.ObjectId, ref: 'Report' },
   }, {
     timestamps: true
   });

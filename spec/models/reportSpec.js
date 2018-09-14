@@ -47,7 +47,9 @@ describe('Report', () => {
       'Old House On New Foundation': undefined,
       'Basementless': undefined,
       'Penthouse': undefined,
-      'Google GeoJSON': undefined,
+      'Location GeoJSON': undefined,
+      'Ascending Neighbour': undefined,
+      'Descending Neighbour': undefined,
     };
 
     done();
@@ -159,26 +161,26 @@ describe('Report', () => {
       });
     });
 
-    it('does not allow a mangled \'Google GeoJSON\' field', (done) => {
-      required['Google GeoJSON'] = 'This is an ordinary string, not GeoJSON';
+    it('does not allow a mangled \'Location GeoJSON\' field', (done) => {
+      required['Location GeoJSON'] = 'This is an ordinary string, not GeoJSON';
       Report.create(required).then((obj) => {
         done.fail('This should not have saved');
       }).catch((error) => {
         expect(Object.keys(error.errors).length).toEqual(1);
-        expect(error.errors['Google GeoJSON'].message).toEqual('Cast to Point failed for value "This is an ordinary string, not GeoJSON" at path "Google GeoJSON"');
+        expect(error.errors['Location GeoJSON'].message).toEqual('Cast to Point failed for value "This is an ordinary string, not GeoJSON" at path "Location GeoJSON"');
         done();
       });
     });
 
-    it('saves a properly constructed GeoJSON point to the \'Google GeoJSON\' field', (done) => {
+    it('saves a properly constructed GeoJSON point to the \'Location GeoJSON\' field', (done) => {
       let point = {
         type: "Point",
         coordinates: [12.123456, 13.134578]
       };
-      required['Google GeoJSON'] = point;
+      required['Location GeoJSON'] = point;
 
       Report.create(required).then((obj) => {
-        expect(obj['Google GeoJSON']).toEqual(point);
+        expect(obj['Location GeoJSON']).toEqual(point);
         done();
       }).catch((error) => {
         done.fail(error);

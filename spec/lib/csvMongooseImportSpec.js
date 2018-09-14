@@ -228,14 +228,14 @@ describe('csvMongooseImport', () => {
 
     it('adds Point to document with matching Roll Number', (done) => {
       db.Report.findOne({'Roll Number': 438090001}).then((report) => {
-        expect(report['Google GeoJSON']).toBeUndefined();
+        expect(report['Location GeoJSON']).toBeUndefined();
         importer.getGeoJson(438090001, (err, results) => {
           if (err) {
             return done.fail(err);
           }
           db.Report.findOne({'Roll Number': 438090001}).then((report) => {
-            expect(report['Google GeoJSON'].type).toEqual('Point');
-            expect(report['Google GeoJSON'].coordinates).toEqual([-122.0842499, 37.4224764]);
+            expect(report['Location GeoJSON'].type).toEqual('Point');
+            expect(report['Location GeoJSON'].coordinates).toEqual([-122.0842499, 37.4224764]);
             done();
           }).catch((err) => {
             done.fail(err);
