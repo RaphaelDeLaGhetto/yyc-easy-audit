@@ -87,6 +87,19 @@ describe('csvMongooseImport', () => {
       });
     });
 
+    it('ignores empty boolean fields so that `undefined` does not evaluate to false', (done) => {
+      importer.importCsv('spec/data/2018-missing-data.csv', (err, arr) => {
+        if (err) {
+          return done.fail(err);
+        }
+        expect(arr.length).toEqual(2);
+        expect(arr[0]['Market Adjustment']).toBeUndefined();
+        expect(arr[1]['Market Adjustment']).toBe(false);
+        done();
+      });
+    });
+
+
   });
 
   describe('.writeRecords', () => {
