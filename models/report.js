@@ -81,5 +81,66 @@ module.exports = function(mongoose) {
     timestamps: true
   });
 
+  /**
+   * After initial import, this method can be invoked by a document to set/
+   * retrieve Ascending/Descending Neighbour values.
+   */
+  ReportSchema.methods.meetNeighbours = function(done) {
+    const streetName = this['Location Address'].replace(/^\d+\w* /, '');
+    this.model('Report').
+        find({ 'Location Address': { $regex: streetName } }).
+        select({'Location Address': 1}).
+        sort({ 'Location Address' : 'asc'}).then((results) => {
+
+      // No known neighbours
+      if (results.length === 1) {
+        done(null, this);
+      }
+
+      let index;
+      for (index = 0; index < results.length; index++) {
+        if (results[index]['Location Address'] === this['Location Address']) {
+          break;
+        }
+      }
+
+      let houseNum = parseInt(results[index]['Location Address'].match(/^\d+\w* /)[0]);
+      if (index) {
+        let descNum = parseInt(results[index - 1]['Location Address'].match(/^\d+\w* /)[0]);
+
+        // If the difference between house numbers is greater than 4, it is
+        // assumed they are seperated by a street (for now)
+        if (houseNum - descNum <= 4) {
+          this['Descending Neighbour'] = results[index - 1]._id;
+        }
+
+        if (index < results.length - 1) {
+          let ascNum = parseInt(results[index + 1]['Location Address'].match(/^\d+\w* /)[0]);
+
+          // Street check
+          if (ascNum - houseNum <= 4) {
+            this['Ascending Neighbour'] = results[index + 1]._id;
+          }
+        }
+      }
+      else {
+        let ascNum = parseInt(results[1]['Location Address'].match(/^\d+\w* /)[0]);
+
+        // Street check
+        if (ascNum - houseNum <= 4) {
+          this['Ascending Neighbour'] = results[1]._id;
+        }
+      }
+
+      this.save().then((savedObj) => {
+        done(null, savedObj);
+      }).catch((err) => {
+        done(err);
+      });
+    }).catch((err) => {
+      done(err);
+    });
+  };
+
   return ReportSchema;
 };

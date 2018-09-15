@@ -4,6 +4,7 @@ describe('Report', () => {
   const fixtures = require('pow-mongoose-fixtures');
   const db = require('../../models');
   const Report = db.Report;
+  const importer = require('../../lib/csvMongooseImport');
 
   /**
    * Model must haves
@@ -186,5 +187,175 @@ describe('Report', () => {
         done.fail(error);
       });
     });
+  });
+
+  describe('#meetNeighbours', () => {
+
+    describe('contiguous reports', () => {
+      let records;
+      beforeEach((done) => {
+        importer.importCsv('spec/data/2018-consolidated-sample.csv', (err, arr) => {
+          if (err) {
+            return done.fail(err);
+          }
+          expect(arr.length).toEqual(18);
+          importer.writeRecords(arr, (err, results) => {
+            if (err) {
+              return done.fail(err);
+            }
+            records = results;
+            done();
+          });
+        });
+      });
+  
+      afterEach((done) => {
+        db.mongoose.connection.db.dropDatabase().then((err, result) => {
+          done();
+        }).catch((err) => {
+          done.fail(err);
+        });
+      });
+  
+      it('writes the correct IDs to ascending and descending neighbours', (done) => {
+        expect(records[0]['Location Address']).toEqual('363 FAKE ST NW');
+        expect(records[9]['Location Address']).toEqual('359 FAKE ST NW');
+        expect(records[16]['Location Address']).toEqual('367 FAKE ST NW');
+        records[0].meetNeighbours((err, result) => {
+          if (err) {
+            return done.fail(err);
+          }
+          expect(result._id).toEqual(records[0]._id);
+          expect(result['Location Address']).toEqual('363 FAKE ST NW');
+  
+          expect(result['Ascending Neighbour']).toEqual(records[16]._id);
+          expect(result['Descending Neighbour']).toEqual(records[9]._id);
+  
+          done();
+        });
+      });
+  
+      it('sets nothing when there is no ascending neighbour', (done) => {
+        expect(records[8]['Location Address']).toEqual('371 FAKE ST NW');
+        expect(records[16]['Location Address']).toEqual('367 FAKE ST NW');
+        records[8].meetNeighbours((err, result) => {
+          if (err) {
+            return done.fail(err);
+          }
+          expect(result._id).toEqual(records[8]._id);
+          expect(result['Location Address']).toEqual('371 FAKE ST NW');
+  
+          expect(result['Ascending Neighbour']).toBeUndefined();
+          expect(result['Descending Neighbour']).toEqual(records[16]._id);
+  
+          done();
+        });
+      });
+  
+      it('sets nothing when there is no descending neighbour', (done) => {
+        expect(records[7]['Location Address']).toEqual('303 FAKE ST NW');
+        expect(records[13]['Location Address']).toEqual('307 FAKE ST NW');
+        records[7].meetNeighbours((err, result) => {
+          if (err) {
+            return done.fail(err);
+          }
+          expect(result._id).toEqual(records[7]._id);
+          expect(result['Location Address']).toEqual('303 FAKE ST NW');
+  
+          expect(result['Ascending Neighbour']).toEqual(records[13]._id);
+          expect(result['Descending Neighbour']).toBeUndefined();
+  
+          done();
+        });
+      });
+  
+      it('persists the record', (done) => {
+        expect(records[0]['Location Address']).toEqual('363 FAKE ST NW');
+        expect(records[9]['Location Address']).toEqual('359 FAKE ST NW');
+        expect(records[16]['Location Address']).toEqual('367 FAKE ST NW');
+        records[0].meetNeighbours((err, result) => {
+          if (err) {
+            return done.fail(err);
+          }
+  
+          db.Report.findById(records[0]._id).then((result) => {
+            expect(result._id).toEqual(records[0]._id);
+            expect(result['Location Address']).toEqual('363 FAKE ST NW');
+    
+            expect(result['Ascending Neighbour']).toEqual(records[16]._id);
+            expect(result['Descending Neighbour']).toEqual(records[9]._id);
+    
+            done();
+          });
+        });
+      });
+
+    });
+
+    describe('non-contiguous properties', () => {
+
+      let records;
+      beforeEach((done) => {
+        importer.importCsv('spec/data/2018-non-contiguous.csv', (err, arr) => {
+          if (err) {
+            return done.fail(err);
+          }
+          expect(arr.length).toEqual(18);
+          importer.writeRecords(arr, (err, results) => {
+            if (err) {
+              return done.fail(err);
+            }
+            records = results;
+            done();
+          });
+        });
+      });
+  
+      afterEach((done) => {
+        db.mongoose.connection.db.dropDatabase().then((err, result) => {
+          done();
+        }).catch((err) => {
+          done.fail(err);
+        });
+      });
+  
+      it('recognizes ascending gaps in house numbers as street divisions', (done) => {
+        expect(records[8]['Location Address']).toEqual('371 FAKE ST NW');
+        expect(records[16]['Location Address']).toEqual('367 FAKE ST NW');
+        records[8].meetNeighbours((err, result) => {
+          if (err) {
+            return done.fail(err);
+          }
+          expect(result._id).toEqual(records[8]._id);
+          expect(result['Location Address']).toEqual('371 FAKE ST NW');
+  
+          expect(result['Ascending Neighbour']).toBeUndefined();
+          expect(result['Descending Neighbour']).toEqual(records[16]._id);
+  
+          done();
+        });
+      });
+
+      it('recognizes descending gaps in house numbers as street divisions', (done) => {
+        expect(records[7]['Location Address']).toEqual('405 FAKE ST NW');
+        expect(records[13]['Location Address']).toEqual('409 FAKE ST NW');
+        records[7].meetNeighbours((err, result) => {
+          if (err) {
+            return done.fail(err);
+          }
+          expect(result._id).toEqual(records[7]._id);
+          expect(result['Location Address']).toEqual('405 FAKE ST NW');
+  
+          expect(result['Ascending Neighbour']).toEqual(records[13]._id);
+          expect(result['Descending Neighbour']).toBeUndefined();
+  
+          done();
+        });
+      });
+    });
+  });
+
+  describe('.introduceNeighbours', () => {
+    
   });
 });
