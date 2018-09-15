@@ -356,6 +356,162 @@ describe('Report', () => {
   });
 
   describe('.introduceNeighbours', () => {
-    
+    let records;
+    beforeEach((done) => {
+      importer.importCsv('spec/data/2018-non-contiguous.csv', (err, arr) => {
+        if (err) {
+          return done.fail(err);
+        }
+        expect(arr.length).toEqual(18);
+        importer.writeRecords(arr, (err, results) => {
+          if (err) {
+            return done.fail(err);
+          }
+          records = results.sort((a, b) => {
+            if (a['Location Address'] < b['Location Address']) {
+              return -1;
+            }
+            else if (a['Location Address'] > b['Location Address']) {
+              return 1;
+            }
+            else {
+              return 0;
+            }
+          });
+          done();
+        });
+      });
+    });
+
+    afterEach((done) => {
+      db.mongoose.connection.db.dropDatabase().then((err, result) => {
+        done();
+      }).catch((err) => {
+        done.fail(err);
+      });
+    });
+
+    it('connects all neighbours', (done) => {
+      db.Report.introduceNeighbours((err, results) => {
+        if (err) {
+          return done.fail(err);
+        }
+        db.Report.find().sort({ 'Location Address': 'asc' }).then((results) => {
+          expect(results.length).toEqual(18);
+
+          expect(results[0]['Ascending Neighbour']).toEqual(results[1]._id);
+          expect(results[0]['Descending Neighbour']).toBeUndefined();
+
+          expect(results[1]['Ascending Neighbour']).toEqual(results[2]._id);
+          expect(results[1]['Descending Neighbour']).toEqual(results[0]._id);
+ 
+          expect(results[2]['Ascending Neighbour']).toEqual(results[3]._id);
+          expect(results[2]['Descending Neighbour']).toEqual(results[1]._id);
+
+          expect(results[3]['Ascending Neighbour']).toEqual(results[4]._id);
+          expect(results[3]['Descending Neighbour']).toEqual(results[2]._id);
+
+          expect(results[4]['Ascending Neighbour']).toEqual(results[5]._id);
+          expect(results[4]['Descending Neighbour']).toEqual(results[3]._id);
+
+          expect(results[5]['Ascending Neighbour']).toEqual(results[6]._id);
+          expect(results[5]['Descending Neighbour']).toEqual(results[4]._id);
+
+          expect(results[6]['Ascending Neighbour']).toEqual(results[7]._id);
+          expect(results[6]['Descending Neighbour']).toEqual(results[5]._id);
+ 
+          expect(results[7]['Ascending Neighbour']).toEqual(results[8]._id);
+          expect(results[7]['Descending Neighbour']).toEqual(results[6]._id);
+
+          expect(results[8]['Ascending Neighbour']).toEqual(results[9]._id);
+          expect(results[8]['Descending Neighbour']).toEqual(results[7]._id);
+
+          expect(results[9]['Ascending Neighbour']).toEqual(results[10]._id);
+          expect(results[9]['Descending Neighbour']).toEqual(results[8]._id);
+
+          expect(results[10]['Ascending Neighbour']).toEqual(results[11]._id);
+          expect(results[10]['Descending Neighbour']).toEqual(results[9]._id);
+
+          expect(results[11]['Ascending Neighbour']).toBeUndefined();
+          expect(results[11]['Descending Neighbour']).toEqual(results[10]._id);
+
+          expect(results[12]['Ascending Neighbour']).toEqual(results[13]._id);
+          expect(results[12]['Descending Neighbour']).toBeUndefined();
+
+          expect(results[13]['Ascending Neighbour']).toEqual(results[14]._id);
+          expect(results[13]['Descending Neighbour']).toEqual(results[12]._id);
+
+          expect(results[14]['Ascending Neighbour']).toEqual(results[15]._id);
+          expect(results[14]['Descending Neighbour']).toEqual(results[13]._id);
+
+          expect(results[15]['Ascending Neighbour']).toEqual(results[16]._id);
+          expect(results[15]['Descending Neighbour']).toEqual(results[14]._id);
+
+          expect(results[16]['Ascending Neighbour']).toEqual(results[17]._id);
+          expect(results[16]['Descending Neighbour']).toEqual(results[15]._id);
+
+          expect(results[17]['Ascending Neighbour']).toBeUndefined();
+          expect(results[17]['Descending Neighbour']).toEqual(results[16]._id);
+  
+          done();
+        }).catch((err) => {
+          done.fail(err);
+        });
+      });
+    });
+
+    it('only introduces neighbours who haven\'t met', (done) => {
+      records[2].meetNeighbours((err, result) => {
+        if (err) {
+          return done.fail(err);
+        }
+        records[records.length - 2].meetNeighbours((err, result) => {
+          if (err) {
+            return done.fail(err);
+          }
+
+          spyOn(db.Report.prototype, 'meetNeighbours').and.callThrough();
+
+          db.Report.introduceNeighbours((err, results) => {
+            if (err) {
+              return done.fail(err);
+            }
+            // 18 records. 2 have been introduced
+            expect(db.Report.prototype.meetNeighbours.calls.count()).toEqual(16);
+
+            done();
+          });
+        });
+      });
+    });
+
+    it('calls on neighbours with one undefined Neighbour', (done) => {
+      // No Descending Neighbour
+      records[0].meetNeighbours((err, result) => {
+        if (err) {
+          return done.fail(err);
+        }
+        // No Ascending Neighbour
+        records[records.length - 1].meetNeighbours((err, result) => {
+          if (err) {
+            return done.fail(err);
+          }
+
+          spyOn(db.Report.prototype, 'meetNeighbours').and.callThrough();
+
+          db.Report.introduceNeighbours((err, results) => {
+            if (err) {
+              return done.fail(err);
+            }
+            // 18 records. 2 have been introduced, but still have an undefined
+            // neighbour
+            expect(db.Report.prototype.meetNeighbours.calls.count()).toEqual(18);
+
+            done();
+          });
+        });
+      });
+    });
+  
   });
 });

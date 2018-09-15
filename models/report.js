@@ -142,5 +142,36 @@ module.exports = function(mongoose) {
     });
   };
 
+
+  /**
+   * Recursive function that does all the actual neighour linking work
+   */
+  function _introduce(records, done){
+    if (!records.length) {
+      return done();
+    }
+
+    let record = records.pop();
+    record.meetNeighbours((err) => {
+      if (err) {
+        return done(err);
+      } 
+      _introduce(records, done);
+    });
+  };
+
+  /**
+   * Link all neighbours that have not been previously introduced
+   */
+  ReportSchema.statics.introduceNeighbours = function(done) {
+    this.find().or([{ 'Ascending Neighbour': undefined}, {'Descending Neighbour': undefined }]).then((reports) => {
+      _introduce(reports, (err) => {
+        done();
+      });
+    }).catch((err) => {
+      done(err);
+    });
+  };
+
   return ReportSchema;
 };
