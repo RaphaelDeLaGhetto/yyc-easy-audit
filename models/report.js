@@ -142,11 +142,71 @@ module.exports = function(mongoose) {
     });
   };
 
+  /**
+   * Recursive function that does all the real work of getting all the
+   * houses on a block
+   */
+  function _getAscending(house, results, done) {
+    if (typeof results === 'function') {
+      done = results;
+      results = [house];
+    }
+    
+    // Ascending
+    if (house['Ascending Neighbour']) {
+      house.model('Report').findById(house['Ascending Neighbour']).then((report) => {
+        results.push(report);
+        _getAscending(report, results, done);
+      }).catch((err) => {
+        return done(err);
+      });
+    } else {
+      done(null, results);
+    }
+  };
+ 
+  function _getDescending(house, results, done) {
+    if (typeof results === 'function') {
+      done = results;
+      results = [house];
+    }
+ 
+    // Descending
+    if (house['Descending Neighbour']) {
+      house.model('Report').findById(house['Descending Neighbour']).then((report) => {
+        results.unshift(report);
+        _getDescending(report, results, done);
+      }).catch((err) => {
+        return done(err);
+      });
+    } else {
+      done(null, results);
+    }
+  };
 
+  /**
+   * Get all houses on a city block (neighbouring house numbers are assumed to 
+   * to have a difference of 4 or less)
+   */
+  ReportSchema.methods.getBlock = function(done) {
+    _getAscending(this, (err, results) => {
+      if (err) {
+        return done(err);
+      }
+      _getDescending(this, results, (err, results) => {
+        if (err) {
+          console.log(err);
+          return done(err);
+        }
+        done(null, results);
+      });
+    });
+  };
+ 
   /**
    * Recursive function that does all the actual neighour linking work
    */
-  function _introduce(records, done){
+  function _introduce(records, done) {
     if (!records.length) {
       return done();
     }

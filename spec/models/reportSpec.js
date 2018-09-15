@@ -435,6 +435,7 @@ describe('Report', () => {
           expect(results[11]['Ascending Neighbour']).toBeUndefined();
           expect(results[11]['Descending Neighbour']).toEqual(results[10]._id);
 
+          // Next block
           expect(results[12]['Ascending Neighbour']).toEqual(results[13]._id);
           expect(results[12]['Descending Neighbour']).toBeUndefined();
 
@@ -512,6 +513,151 @@ describe('Report', () => {
         });
       });
     });
-  
+  });
+
+  describe('#getBlock', () => {
+
+    let records;
+    beforeEach((done) => {
+      importer.importCsv('spec/data/2018-non-contiguous.csv', (err, arr) => {
+        if (err) {
+          return done.fail(err);
+        }
+        expect(arr.length).toEqual(18);
+        importer.writeRecords(arr, (err, results) => {
+          if (err) {
+            return done.fail(err);
+          }
+
+          db.Report.introduceNeighbours((err, results) => {
+            if (err) {
+              return done.fail(err);
+            }
+
+            db.Report.find().sort({ 'Location Address': 'asc' }).then((results) => {
+              expect(results.length).toEqual(18);
+              records = results;
+              done();
+            }).catch((err) => {
+              done.fail(err);
+            });
+          });
+        });
+      });
+    });
+
+    afterEach((done) => {
+      db.mongoose.connection.db.dropDatabase().then((err, result) => {
+        done();
+      }).catch((err) => {
+        done.fail(err);
+      });
+    });
+
+
+    it('returns all reports from one end of the block to the other', (done) => {
+      expect(records[14]['Ascending Neighbour']).toBeDefined();
+      expect(records[14]['Descending Neighbour']).toBeDefined();
+
+      records[14].getBlock((err, results) => {
+        expect(results.length).toEqual(6);
+
+        expect(results[0]._id).toEqual(records[12]._id);
+        expect(results[0]['Ascending Neighbour']).toEqual(records[13]._id);
+        expect(results[0]['Descending Neighbour']).toBeUndefined();
+
+        expect(results[1]._id).toEqual(records[13]._id);
+        expect(results[1]['Ascending Neighbour']).toEqual(records[14]._id);
+        expect(results[1]['Descending Neighbour']).toEqual(records[12]._id);
+
+        expect(results[2]._id).toEqual(records[14]._id);
+        expect(results[2]['Ascending Neighbour']).toEqual(records[15]._id);
+        expect(results[2]['Descending Neighbour']).toEqual(records[13]._id);
+
+        expect(results[3]._id).toEqual(records[15]._id);
+        expect(results[3]['Ascending Neighbour']).toEqual(records[16]._id);
+        expect(results[3]['Descending Neighbour']).toEqual(records[14]._id);
+
+        expect(results[4]._id).toEqual(records[16]._id);
+        expect(results[4]['Ascending Neighbour']).toEqual(records[17]._id);
+        expect(results[4]['Descending Neighbour']).toEqual(records[15]._id);
+
+        expect(results[5]._id).toEqual(records[17]._id);
+        expect(results[5]['Ascending Neighbour']).toBeUndefined();
+        expect(results[5]['Descending Neighbour']).toEqual(records[16]._id);
+
+        done();
+      });
+    });
+
+    it('returns all reports when starting house has no Descending Neighbours', (done) => {
+      expect(records[12]['Ascending Neighbour']).toEqual(records[13]._id);
+      expect(records[12]['Descending Neighbour']).toBeUndefined();
+
+      records[12].getBlock((err, results) => {
+        expect(results.length).toEqual(6);
+
+        expect(results[0]._id).toEqual(records[12]._id);
+        expect(results[0]['Ascending Neighbour']).toEqual(records[13]._id);
+        expect(results[0]['Descending Neighbour']).toBeUndefined();
+
+        expect(results[1]._id).toEqual(records[13]._id);
+        expect(results[1]['Ascending Neighbour']).toEqual(records[14]._id);
+        expect(results[1]['Descending Neighbour']).toEqual(records[12]._id);
+
+        expect(results[2]._id).toEqual(records[14]._id);
+        expect(results[2]['Ascending Neighbour']).toEqual(records[15]._id);
+        expect(results[2]['Descending Neighbour']).toEqual(records[13]._id);
+
+        expect(results[3]._id).toEqual(records[15]._id);
+        expect(results[3]['Ascending Neighbour']).toEqual(records[16]._id);
+        expect(results[3]['Descending Neighbour']).toEqual(records[14]._id);
+
+        expect(results[4]._id).toEqual(records[16]._id);
+        expect(results[4]['Ascending Neighbour']).toEqual(records[17]._id);
+        expect(results[4]['Descending Neighbour']).toEqual(records[15]._id);
+
+        expect(results[5]._id).toEqual(records[17]._id);
+        expect(results[5]['Ascending Neighbour']).toBeUndefined();
+        expect(results[5]['Descending Neighbour']).toEqual(records[16]._id);
+
+        done();
+      });
+    });
+
+    it('returns all reports when starting house has no Ascending Neighbours', (done) => {
+      expect(records[17]['Ascending Neighbour']).toBeUndefined();
+      expect(records[17]['Descending Neighbour']).toEqual(records[16]._id);
+
+      records[17].getBlock((err, results) => {
+        expect(results.length).toEqual(6);
+
+        expect(results[0]._id).toEqual(records[12]._id);
+        expect(results[0]['Ascending Neighbour']).toEqual(records[13]._id);
+        expect(results[0]['Descending Neighbour']).toBeUndefined();
+
+        expect(results[1]._id).toEqual(records[13]._id);
+        expect(results[1]['Ascending Neighbour']).toEqual(records[14]._id);
+        expect(results[1]['Descending Neighbour']).toEqual(records[12]._id);
+
+        expect(results[2]._id).toEqual(records[14]._id);
+        expect(results[2]['Ascending Neighbour']).toEqual(records[15]._id);
+        expect(results[2]['Descending Neighbour']).toEqual(records[13]._id);
+
+        expect(results[3]._id).toEqual(records[15]._id);
+        expect(results[3]['Ascending Neighbour']).toEqual(records[16]._id);
+        expect(results[3]['Descending Neighbour']).toEqual(records[14]._id);
+
+        expect(results[4]._id).toEqual(records[16]._id);
+        expect(results[4]['Ascending Neighbour']).toEqual(records[17]._id);
+        expect(results[4]['Descending Neighbour']).toEqual(records[15]._id);
+
+        expect(results[5]._id).toEqual(records[17]._id);
+        expect(results[5]['Ascending Neighbour']).toBeUndefined();
+        expect(results[5]['Descending Neighbour']).toEqual(records[16]._id);
+
+        done();
+      });
+    });
   });
 });
