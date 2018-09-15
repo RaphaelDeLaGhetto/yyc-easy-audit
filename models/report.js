@@ -224,7 +224,7 @@ module.exports = function(mongoose) {
    * Link all neighbours that have not been previously introduced
    */
   ReportSchema.statics.introduceNeighbours = function(done) {
-    this.find().or([{ 'Ascending Neighbour': undefined}, {'Descending Neighbour': undefined }]).then((reports) => {
+    this.find().or([{'Ascending Neighbour': undefined}, {'Descending Neighbour': undefined}]).then((reports) => {
       _introduce(reports, (err) => {
         done();
       });
