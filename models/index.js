@@ -11,6 +11,7 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 const connectionStr = 'mongodb://' + config.host + ':27017/' + config.database;
 mongoose.connect(connectionStr, { useNewUrlParser: true });
+mongoose.set('useCreateIndex', true);
 
 let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
