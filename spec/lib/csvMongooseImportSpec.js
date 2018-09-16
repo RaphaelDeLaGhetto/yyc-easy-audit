@@ -144,6 +144,29 @@ describe('csvMongooseImport', () => {
         });
       });
     });
+
+    it('does not write duplicate records to the database', (done) => {
+      importer.writeRecords(records, (err, results) => {
+        if (err) {
+          return done.fail(err);
+        }
+        expect(results.length).toEqual(results.length);
+
+        importer.writeRecords(records, (err, results) => {
+          if (err) {
+            db.Report.find().then((results) => {
+              expect(results.length).toEqual(records.length);
+              return done();
+            }).catch((err) => {
+              done.fail(err);
+            });
+          }
+          else {
+            done.fail('This should have failed');
+          }
+        });
+      });
+    });
   });
 
   describe('.getGeoJson', () => {
