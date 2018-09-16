@@ -107,6 +107,21 @@ describe('Report', () => {
       });
     });
 
+    it('does not allow duplicate \'Roll Number\' or \'Location Address\' field', (done) => {
+      Report.create(required).then((obj) => {
+        Report.create(required).then((obj) => {
+            done.fail('This should not have saved');
+        }).catch((error) => {
+          expect(Object.keys(error.errors).length).toEqual(2);
+          expect(error.errors['Roll Number'].message).toMatch('expected `Roll Number` to be unique.');
+          expect(error.errors['Location Address'].message).toMatch('expected `Location Address` to be unique.');
+          done();
+        });
+      }).catch((error) => {
+        done.fail(error);
+      });
+    });
+
     it('does not allow an empty \'Location Address\' field', (done) => {
       delete required['Location Address'];
       Report.create(required).then((obj) => {

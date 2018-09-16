@@ -11,6 +11,7 @@
 //               'Basementless', 'Penthouse']
 
 const GeoJSON = require('mongoose-geojson-schema');
+const uniqueValidator = require('mongoose-unique-validator');
 
 module.exports = function(mongoose) {
   const Schema = mongoose.Schema;
@@ -26,10 +27,12 @@ module.exports = function(mongoose) {
     },
     'Roll Number': {
       type: Types.Number,
+      unique: true,
       required: [true, 'No \'Roll Number\' supplied'],
     },
     'Location Address': {
       type: Types.String,
+      unique: true,
       required: [true, 'No \'Location Address\' supplied'],
     },
     'Taxation Status': Types.String,
@@ -143,7 +146,7 @@ module.exports = function(mongoose) {
   };
 
   /**
-   * Recursive function that does all the real work of getting all the
+   * Recursive functions that do all the real work of getting all the
    * houses on a block
    */
   function _getAscending(house, results, done) {
@@ -232,6 +235,9 @@ module.exports = function(mongoose) {
       done(err);
     });
   };
+
+
+  ReportSchema.plugin(uniqueValidator);
 
   return ReportSchema;
 };
