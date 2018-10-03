@@ -7,7 +7,7 @@ A simple proof-of-concept application of linear regression on residential proper
 
 ## Get the data
 
-With no open API, there is currently only one way to obtain Calgary residential property tax data: [assessmentsearch.calgary.ca](https://assessmentsearch.calgary.ca). The City of Calgary does not currently allow limitless, easy access to the residential property data purchased by taxpayers. You can obtain 50 PDF reports at a time. Once you reach your limit, City labourers are usually pretty good about resetting, though sometimes you have to wait a couple of days.
+With no open API, there is currently only one way to obtain Calgary residential property tax data: [assessmentsearch.calgary.ca](https://assessmentsearch.calgary.ca). The City of Calgary does not allow limitless, easy access to the residential property data purchased by taxpayers. You can obtain 50 PDF reports at a time. Once you reach your limit, City labourers are usually pretty good about resetting, though sometimes you have to wait a couple of days.
 
 Collect as many reports as you can and store them in a directory.
 
