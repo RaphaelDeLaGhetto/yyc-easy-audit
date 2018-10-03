@@ -10,7 +10,7 @@ describe('index', () => {
 
   let browser;
 
-  it('does something', (done) => {
+  beforeEach((done) => {
     browser = new Browser({ waitDuration: '30s', loadCss: false });
     browser.visit('/', (err) => {
       if (err) {
@@ -19,6 +19,11 @@ describe('index', () => {
       browser.assert.success();
       done();
     });
+  });
+
+  it('displays a map', (done) => {
+    browser.assert.element('#audit-map');
+    done();
   });
 });
 
