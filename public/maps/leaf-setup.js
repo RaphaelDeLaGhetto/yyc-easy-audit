@@ -29,6 +29,6 @@ var myIcon = L.icon({
 
 for (var i = 0; i < markers.length; ++i) {
   L.marker([ markers[i].lat, markers[i].lng ], { icon: myIcon })
-   .bindPopup('<address>markers[i].address</address>')
+   .bindPopup('<address>' + markers[i].address + '</address>')
    .addTo(map);
 }
