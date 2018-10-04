@@ -53,6 +53,14 @@ The output from the `geoJsonImport.sh` script can be saved to file and imported 
 ./bin/loadSavedCoords.sh ../path/to/gps.json
 ```
 
+## Generate map marker data
+
+This plots property info on the map:
+
+```
+./bin/makeMarkers.sh public/maps/markers.json
+```
+
 # Setup
 
 ## Testing
