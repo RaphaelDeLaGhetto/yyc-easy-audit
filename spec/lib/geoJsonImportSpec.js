@@ -58,7 +58,7 @@ describe('geoJsonImport', () => {
               expect(param.key).toEqual(process.env.GEOCODE_API);
               return {
                 end: function(cb) {
-                  cb(null, JSON.stringify(require('../api-mocks/google-sample-geocode-response.json')));
+                  cb(null, { body: require('../api-mocks/google-sample-geocode-response.json') });
                 }
               }
             }
@@ -119,7 +119,7 @@ describe('geoJsonImport', () => {
           query: function(param) {
             return {
               end: function(cb) {
-                cb(null, JSON.stringify(require('../api-mocks/google-sample-geocode-response.json')));
+                cb(null, { body: require('../api-mocks/google-sample-geocode-response.json') });
               }
             }
           }
@@ -194,5 +194,46 @@ describe('geoJsonImport', () => {
         done.fail(err);
       });
     });  
+  });
+
+
+  describe('.loadSavedGeoJson', () => {
+    it('loads GeoJSON coordinates into database', (done) => {
+      db.Report.find({}).then((reports) => {
+        expect(reports[0]['Location GeoJSON']).toBe(undefined);
+        expect(reports[1]['Location GeoJSON']).toBe(undefined);
+
+        const geoJson = {};
+        geoJson[reports[0]['Roll Number']] = [12.3, -12.3];
+        geoJson[reports[1]['Roll Number']] = [23.4, -23.4];
+
+        importer.loadSavedGeoJson(geoJson, (err, results) => {
+          if (err) {
+            return done.fail(err);
+          }
+  
+          db.Report.find({}).then((reports) => {
+            expect(reports[0]['Location GeoJSON'].coordinates).toEqual([12.3, -12.3]);
+            expect(reports[1]['Location GeoJSON'].coordinates).toEqual([23.4, -23.4]);
+
+            done();
+          }).catch((err) => {
+            done.fail(err);
+          });
+        });
+      }).catch((err) => {
+        done.fail(err);
+      });
+    });
+
+    // Just don't want any crashes
+    it('doesn\'t barf if object parameter is empty', (done) => {
+      importer.loadSavedGeoJson({}, (err, results) => {
+        if (err) {
+          return done.fail(err);
+        }
+        done();
+      });
+    });
   });
 });
