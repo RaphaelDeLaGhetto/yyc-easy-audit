@@ -56,7 +56,7 @@ module.exports = [
      * @param data  mixed Data returns by `fixtures` attribute
      */
     get: function (match, data) {
-      return JSON.stringify(require('./google-sample-geocode-response.json')); 
+      return { body: require('./google-sample-geocode-response.json') }; 
     }
   },
 ];
