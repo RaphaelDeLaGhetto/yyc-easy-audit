@@ -37,7 +37,21 @@ From the application directory:
 ./bin/import.sh ../path/to/consolidated.csv
 ```
 
+## GET address coordinates
 
+This script inserts GPS coordinates into the database for the properties without. Provide a filename to save coordinates for later:
+
+```
+./bin/geoJsonImport.sh ../path/to/gps.json
+```
+
+### Import GPS coordinates from file
+
+The output from the `geoJsonImport.sh` script can be saved to file and imported later with `loadSavedCoords.sh`: 
+
+```
+./bin/loadSavedCoords.sh ../path/to/gps.json
+```
 
 # Setup
 
