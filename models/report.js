@@ -237,6 +237,44 @@ module.exports = function(mongoose) {
   };
 
   /**
+   * Recursive function that does all the actual block getting 
+   */
+  function _getBlocks(records, blocks, done) {
+
+    if (typeof blocks === 'function') {
+      done = blocks;
+      blocks = [];
+    }
+
+    if (!records.length) {
+      return done(null, blocks);
+    }
+    let record = records.pop();
+
+    _getDescending(record, (err, results) => {
+      if (err) {
+        console.log(err);
+        return done(err);
+      }
+      blocks.push(results);
+      _getBlocks(records, blocks, done);
+    });
+  };
+
+  /**
+   * Gets all neighbours organized in blocks
+   */
+  ReportSchema.statics.getBlocks = function(done) {
+    //this.find().or([{'Ascending Neighbour': undefined}, {'Descending Neighbour': undefined}]).then((reports) => {
+    this.find({'Ascending Neighbour': undefined}).then((reports) => {
+      _getBlocks(reports, done);
+    }).catch((err) => {
+      done(err);
+    });
+  };
+
+
+  /**
    * Virtual method to sum total lot size and developed living space
    */
   ReportSchema.virtual('totalSquareFootage').get(function() {

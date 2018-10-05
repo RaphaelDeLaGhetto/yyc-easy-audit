@@ -643,6 +643,61 @@ describe('Report', () => {
     });
   });
 
+  describe('.getBlocks', () => {
+    let records;
+    beforeEach((done) => {
+      importer.importCsv('spec/data/2018-non-contiguous.csv', (err, arr) => {
+        if (err) {
+          return done.fail(err);
+        }
+        expect(arr.length).toEqual(18);
+        importer.writeRecords(arr, (err, results) => {
+          if (err) {
+            return done.fail(err);
+          }
+
+          db.Report.introduceNeighbours((err, results) => {
+            if (err) {
+              return done.fail(err);
+            }
+
+            db.Report.find().sort({ 'Location Address': 'asc' }).then((results) => {
+              expect(results.length).toEqual(18);
+              records = results;
+              done();
+            }).catch((err) => {
+              done.fail(err);
+            });
+          });
+        });
+      });
+    });
+
+    it('returns an array of arrays demarcated by city blocks', (done) => {
+      db.Report.getBlocks((err, results) => {
+        if (err) {
+          return done.fail(err);
+        }
+
+        expect(results.length).toEqual(2); 
+        
+        // Block one
+        expect(results[0].length).toEqual(6); 
+        for (const result of results[0]) {
+          expect(result['Location Address']).toMatch(/^4\d\d FAKE/);
+        }
+
+        // Block two
+        expect(results[1].length).toEqual(12); 
+        for (const result of results[1]) {
+          expect(result['Location Address']).toMatch(/^3\d\d FAKE/);
+        }
+
+        done();
+      });
+    });
+  });
+
   describe('#sumFootage virtual', () => {
 
     let records;
@@ -672,4 +727,5 @@ describe('Report', () => {
       expect(records[1].totalSquareFootage).toEqual(6394);
     });
   });
+
 });
