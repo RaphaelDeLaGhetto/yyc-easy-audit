@@ -644,10 +644,32 @@ describe('Report', () => {
   });
 
   describe('#sumFootage virtual', () => {
-    it('returns the total lot and developed property size', (done) => {
-      done.fail();
-      
+
+    let records;
+    beforeEach((done) => {
+      importer.importCsv('spec/data/2018-missing-data.csv', (err, arr) => {
+        if (err) {
+          return done.fail(err);
+        }
+        expect(arr.length).toEqual(2);
+        importer.writeRecords(arr, (err, results) => {
+          if (err) {
+            return done.fail(err);
+          }
+          db.Report.find().then((results) => {
+            expect(results.length).toEqual(2);
+            records = results;
+            done();
+          }).catch((err) => {
+            done.fail(err);
+          });
+        });
+      });
     });
 
+    it('returns the total lot and developed property size', () => {
+      expect(records[0].totalSquareFootage).toEqual(7590);
+      expect(records[1].totalSquareFootage).toEqual(6394);
+    });
   });
 });

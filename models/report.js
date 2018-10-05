@@ -236,6 +236,15 @@ module.exports = function(mongoose) {
     });
   };
 
+  /**
+   * Virtual method to sum total lot size and developed living space
+   */
+  ReportSchema.virtual('totalSquareFootage').get(function() {
+    return this['Assessable Land Area'] + 
+           this['Total Living Area Above Grade'] +
+           this['Living Area Below Grade'] +
+           this['Garage Area'];
+  });
 
   ReportSchema.plugin(uniqueValidator);
 
