@@ -52,10 +52,14 @@ describe('leafletHelper', () => {
           expect(markers[0].lat).toEqual(-12.3);
           expect(markers[0].lng).toEqual(12.3);
           expect(markers[0].address).toEqual('363 FAKE ST NW');
+          expect(markers[0].size).toEqual(7590);
+          expect(markers[0].assessment).toEqual(492500);
           
           expect(markers[1].lat).toEqual(-23.4);
           expect(markers[1].lng).toEqual(23.4);
           expect(markers[1].address).toEqual('351 FAKE ST NW');
+          expect(markers[1].size).toEqual(6394);
+          expect(markers[1].assessment).toEqual(463500);
  
           done();
         });
