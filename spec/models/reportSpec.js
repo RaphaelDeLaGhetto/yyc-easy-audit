@@ -223,15 +223,7 @@ describe('Report', () => {
           });
         });
       });
-  
-      afterEach((done) => {
-        db.mongoose.connection.db.dropDatabase().then((err, result) => {
-          done();
-        }).catch((err) => {
-          done.fail(err);
-        });
-      });
-  
+
       it('writes the correct IDs to ascending and descending neighbours', (done) => {
         expect(records[0]['Location Address']).toEqual('363 FAKE ST NW');
         expect(records[9]['Location Address']).toEqual('359 FAKE ST NW');
@@ -325,15 +317,7 @@ describe('Report', () => {
           });
         });
       });
-  
-      afterEach((done) => {
-        db.mongoose.connection.db.dropDatabase().then((err, result) => {
-          done();
-        }).catch((err) => {
-          done.fail(err);
-        });
-      });
-  
+
       it('recognizes ascending gaps in house numbers as street divisions', (done) => {
         expect(records[8]['Location Address']).toEqual('371 FAKE ST NW');
         expect(records[16]['Location Address']).toEqual('367 FAKE ST NW');
@@ -395,14 +379,6 @@ describe('Report', () => {
           });
           done();
         });
-      });
-    });
-
-    afterEach((done) => {
-      db.mongoose.connection.db.dropDatabase().then((err, result) => {
-        done();
-      }).catch((err) => {
-        done.fail(err);
       });
     });
 
@@ -561,15 +537,6 @@ describe('Report', () => {
       });
     });
 
-    afterEach((done) => {
-      db.mongoose.connection.db.dropDatabase().then((err, result) => {
-        done();
-      }).catch((err) => {
-        done.fail(err);
-      });
-    });
-
-
     it('returns all reports from one end of the block to the other', (done) => {
       expect(records[14]['Ascending Neighbour']).toBeDefined();
       expect(records[14]['Descending Neighbour']).toBeDefined();
@@ -674,5 +641,13 @@ describe('Report', () => {
         done();
       });
     });
+  });
+
+  describe('#sumFootage virtual', () => {
+    it('returns the total lot and developed property size', (done) => {
+      done.fail();
+      
+    });
+
   });
 });
