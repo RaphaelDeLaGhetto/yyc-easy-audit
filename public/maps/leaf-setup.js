@@ -93,6 +93,9 @@ markers.forEach((block, i) => {
         if (minWidth < 590) {
           minWidth = 590;
         }
+        else if (minWidth > 900) {
+          minWidth = 900;
+        }
 
         var popup = L.popup({ minWidth: minWidth, keepInView: true })
             .setLatLng(e.latlng)
