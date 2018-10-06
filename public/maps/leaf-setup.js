@@ -58,7 +58,9 @@ Chart.plugins.register({
 
           var padding = 5;
           var position = element.tooltipPosition();
-          ctx.fillText(dataString, position.x, position.y - (fontSize / 2) - padding);
+          if (dataString) {
+            ctx.fillText(dataString, position.x, position.y - (fontSize / 2) - padding);
+          }
         });
       }
     });
@@ -69,10 +71,21 @@ Chart.plugins.register({
  * Event handler for marker clicks
  */
 markers.forEach((block, i) => {
-  block.forEach((marker, j) => {
-    function renderChart(blockIndex, propertyIndex, marker) {
+  var regressionData = block.map(function(report) {
+    return [report.size, report.assessment];
+  });
+  var regressionLine = regression('linear', regressionData).points.map(function(point) {
+    return { x: point[0], y: point[1] };
+  });
+  var regressionLine = regressionLine.sort(function(a, b) {
+    return a.x - b.x;
+  });
+  
+  block.forEach(function(marker, j) {
+    function renderChart(blockIndex, propertyIndex, marker, regressionLine) {
       var blockIndex = blockIndex;
       var propertyIndex = propertyIndex;
+      var regressionLine = regressionLine;
       var marker = marker;
       var markerIndex = '' + blockIndex + propertyIndex;
       return function (e) {
@@ -83,31 +96,48 @@ markers.forEach((block, i) => {
   
         var ctx = document.getElementById('chart-' + markerIndex).getContext('2d');
 
-        var points = [];
-        markers[blockIndex].forEach(function(details) {
-          if (details.address !== marker.address) {
-            points.push({ x: details.size, y: details.assessment, label: details.address.match(/^\d+/)[0] });
+        /**
+         * Get plot points from the marker objects for the block 
+         */
+        var points = markers[blockIndex].sort(function(a, b) {
+          return a.size - b.size;
+        });
+        console.log(points);
+
+        var sortedMarkerIndex;
+        points = points.map(function(point, i) {
+          if (point.address === marker.address) {
+            sortedMarkerIndex = i;
           }
+          return { x: point.size, y: point.assessment, label: point.address.match(/^\d+/)[0] };
         });
 
+        console.log(points[sortedMarkerIndex]);
+
         var myChart = new Chart(ctx, {
-          type: 'scatter',
+          type: 'line',
           data: {
             // All data
             datasets: [
               {
+                showLine: false,
                 label:  marker.address,
-                data: [{ x: marker.size, y: marker.assessment, label: marker.address.match(/^\d+/)[0] }],
+                data: [points[sortedMarkerIndex]],
                 backgroundColor: 'red',
                 borderColor: 'red',
               },
               {
+                showLine: false,
                 label: 'Neighbours',
-                data: points,
-                backgroundColor: 'lightblue',
+                data: points.slice(0, sortedMarkerIndex).concat(points.slice(sortedMarkerIndex + 1)),
+                backgroundColor: 'blue',
                 borderColor: 'blue',
               },
-
+              {
+                label: 'Adjusted for square footage',
+                data: regressionLine,
+                borderColor: 'lightblue',
+              },
             ]
           },
           options: {
@@ -125,7 +155,7 @@ markers.forEach((block, i) => {
                 position: 'bottom',
                 ticks: {
                   callback: function(value, index, values) {
-                    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");;
+                    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' ft';
                   }
                 }
               }],
@@ -147,6 +177,6 @@ markers.forEach((block, i) => {
       };
     }
     L.marker([ marker.lat, marker.lng ], { icon: myIcon })
-     .addTo(map).on('click', renderChart(i, j, marker));
+     .addTo(map).on('click', renderChart(i, j, marker, regressionLine));
   });
 });
