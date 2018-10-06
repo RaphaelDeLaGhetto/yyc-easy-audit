@@ -27,60 +27,86 @@ var myIcon = L.icon({
   popupAnchor: [0, -14]
 })
 
+/**
+ * Plugin to label points
+ *
+ * 2018-10-5
+ * Apapted from http://www.chartjs.org/samples/latest/advanced/data-labelling.html
+ */
+Chart.plugins.register({
+  afterDatasetsDraw: function(chart) {
+    var ctx = chart.ctx;
+
+    chart.data.datasets.forEach(function(dataset, i) {
+      var meta = chart.getDatasetMeta(i);
+      if (!meta.hidden) {
+        meta.data.forEach(function(element, index) {
+          // Draw the text in black, with the specified font
+          ctx.fillStyle = 'rgb(0, 0, 0)';
+
+          var fontSize = 12;
+          var fontStyle = 'normal';
+          var fontFamily = 'Helvetica Neue';
+          ctx.font = Chart.helpers.fontString(fontSize, fontStyle, fontFamily);
+
+          // Get house number 
+          var dataString = dataset.data[index].label;
+
+          // Make sure alignment settings are correct
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          var padding = 5;
+          var position = element.tooltipPosition();
+          ctx.fillText(dataString, position.x, position.y - (fontSize / 2) - padding);
+        });
+      }
+    });
+  }
+});
 
 /**
  * Event handler for marker clicks
  */
-for (var i = 0; i < markers.length; ++i) {
+markers.forEach((block, i) => {
+  block.forEach((marker, j) => {
+    function renderChart(blockIndex, propertyIndex, marker) {
+      var blockIndex = blockIndex;
+      var propertyIndex = propertyIndex;
+      var marker = marker;
+      var markerIndex = '' + blockIndex + propertyIndex;
+      return function (e) {
+        var popup = L.popup({ minWidth: document.documentElement.clientWidth - 50, keepInView: true })
+            .setLatLng(e.latlng)
+            .setContent('<canvas id="chart-' + markerIndex + '"></canvas>')
+            .openOn(map);
+  
+        var ctx = document.getElementById('chart-' + markerIndex).getContext('2d');
 
-  function renderChart(index) {
-    var markerIndex = index;
-    return function (e) {
-      var popup = L.popup()
-          .setLatLng(e.latlng)
-          .setContent('<canvas id="chart-' + markerIndex + '" width="400" height="400"></canvas>')
-          .openOn(map);
-
-      var ctx = document.getElementById('chart-' + markerIndex).getContext('2d');
-      var myChart = new Chart(ctx, {
-          type: 'bar',
+        var points = markers[blockIndex].map(function(details) {
+          return { x: details.size, y: details.assessment, label: details.address.match(/^\d+/)[0] };
+        });
+        
+        var myChart = new Chart(ctx, {
+          type: 'scatter',
           data: {
-              labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-              datasets: [{
-                  label: '# of Votes',
-                  data: [12, 19, 3, 5, 2, 3],
-                  backgroundColor: [
-                      'rgba(255, 99, 132, 0.2)',
-                      'rgba(54, 162, 235, 0.2)',
-                      'rgba(255, 206, 86, 0.2)',
-                      'rgba(75, 192, 192, 0.2)',
-                      'rgba(153, 102, 255, 0.2)',
-                      'rgba(255, 159, 64, 0.2)'
-                  ],
-                  borderColor: [
-                      'rgba(255,99,132,1)',
-                      'rgba(54, 162, 235, 1)',
-                      'rgba(255, 206, 86, 1)',
-                      'rgba(75, 192, 192, 1)',
-                      'rgba(153, 102, 255, 1)',
-                      'rgba(255, 159, 64, 1)'
-                  ],
-                  borderWidth: 1
-              }]
+            datasets: [{
+              label: marker.address,
+              data: points,
+            }]
           },
           options: {
-              scales: {
-                  yAxes: [{
-                      ticks: {
-                          beginAtZero: true
-                      }
-                  }]
-              }
+            scales: {
+              xAxes: [{
+                type: 'linear',
+                position: 'bottom'
+              }]
+            }
           }
-      });
-    };
-  }
-
-  L.marker([ markers[i].lat, markers[i].lng ], { icon: myIcon })
-   .addTo(map).on('click', renderChart(i));
-}
+        });
+      };
+    }
+    L.marker([ marker.lat, marker.lng ], { icon: myIcon })
+     .addTo(map).on('click', renderChart(i, j, marker));
+  });
+});
