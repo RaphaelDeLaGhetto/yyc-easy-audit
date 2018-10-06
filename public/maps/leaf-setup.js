@@ -89,7 +89,12 @@ markers.forEach((block, i) => {
       var marker = marker;
       var markerIndex = '' + blockIndex + propertyIndex;
       return function (e) {
-        var popup = L.popup({ minWidth: document.documentElement.clientWidth - 50, keepInView: true })
+        var minWidth = document.documentElement.clientWidth - 50;
+        if (minWidth < 590) {
+          minWidth = 590;
+        }
+
+        var popup = L.popup({ minWidth: minWidth, keepInView: true })
             .setLatLng(e.latlng)
             .setContent('<canvas id="chart-' + markerIndex + '"></canvas>')
             .openOn(map);
@@ -102,7 +107,6 @@ markers.forEach((block, i) => {
         var points = markers[blockIndex].sort(function(a, b) {
           return a.size - b.size;
         });
-        console.log(points);
 
         var sortedMarkerIndex;
         points = points.map(function(point, i) {
@@ -111,8 +115,6 @@ markers.forEach((block, i) => {
           }
           return { x: point.size, y: point.assessment, label: point.address.match(/^\d+/)[0] };
         });
-
-        console.log(points[sortedMarkerIndex]);
 
         var myChart = new Chart(ctx, {
           type: 'line',
