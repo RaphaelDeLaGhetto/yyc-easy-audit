@@ -83,23 +83,63 @@ markers.forEach((block, i) => {
   
         var ctx = document.getElementById('chart-' + markerIndex).getContext('2d');
 
-        var points = markers[blockIndex].map(function(details) {
-          return { x: details.size, y: details.assessment, label: details.address.match(/^\d+/)[0] };
+        var points = [];
+        markers[blockIndex].forEach(function(details) {
+          if (details.address !== marker.address) {
+            points.push({ x: details.size, y: details.assessment, label: details.address.match(/^\d+/)[0] });
+          }
         });
-        
+
         var myChart = new Chart(ctx, {
           type: 'scatter',
           data: {
-            datasets: [{
-              label: marker.address,
-              data: points,
-            }]
+            // All data
+            datasets: [
+              {
+                label:  marker.address,
+                data: [{ x: marker.size, y: marker.assessment, label: marker.address.match(/^\d+/)[0] }],
+                backgroundColor: 'red',
+                borderColor: 'red',
+              },
+              {
+                label: 'Neighbours',
+                data: points,
+                backgroundColor: 'lightblue',
+                borderColor: 'blue',
+              },
+
+            ]
           },
           options: {
+            title: {
+              display: true,
+              text: 'Average assessed values vs. total square footage'
+            },
             scales: {
               xAxes: [{
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Total developed square footage and lot size (sq feet)'
+                },
                 type: 'linear',
-                position: 'bottom'
+                position: 'bottom',
+                ticks: {
+                  callback: function(value, index, values) {
+                    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");;
+                  }
+                }
+              }],
+              yAxes: [{
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Assessed value',
+                },
+                ticks: {
+                  // Include a dollar sign in the ticks
+                  callback: function(value, index, values) {
+                    return '$' + value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");;
+                  }
+                }
               }]
             }
           }
