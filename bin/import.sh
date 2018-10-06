@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const importer = require('../lib/csvMongooseImport');
+const db = require('../models');
 
 const program = require('commander');
 
@@ -30,8 +31,14 @@ importer.importCsv(csvFile, (err, results) => {
       process.exit(0);
     }
 
-    console.log('Done\nCheerio!');
-    process.exit(0);
-  });
+    db.Report.introduceNeighbours((err, results) => {
+      if (err) {
+        console.error(err.message);
+        process.exit(0);
+      }
 
+      console.log('Done\nCheerio!');
+      process.exit(0);
+    });
+  });
 });
