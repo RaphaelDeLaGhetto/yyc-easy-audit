@@ -265,14 +265,12 @@ module.exports = function(mongoose) {
    * Gets all neighbours organized in blocks
    */
   ReportSchema.statics.getBlocks = function(done) {
-    //this.find().or([{'Ascending Neighbour': undefined}, {'Descending Neighbour': undefined}]).then((reports) => {
     this.find({'Ascending Neighbour': undefined}).then((reports) => {
       _getBlocks(reports, done);
     }).catch((err) => {
       done(err);
     });
   };
-
 
   /**
    * Virtual method to sum total lot size and developed living space
