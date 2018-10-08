@@ -22,3 +22,17 @@ nav {
   margin-left: 1em;
 }
 
+header {
+  text-align: center;
+}
+
+header h1 {
+  font-size: 1.25em;
+  margin: 0;
+}
+
+header h2 {
+  font-size: 1em;
+  margin-top: .5em;
+  margin-bottom: .5em;
+}

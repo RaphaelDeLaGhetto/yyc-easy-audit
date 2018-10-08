@@ -26,7 +26,7 @@ var lightIcon = L.icon({
 //  iconSize: [29, 24],
   iconSize: [29, 24],
   //iconAnchor: [9, 21],
-  iconAnchor: [19, 21],
+  iconAnchor: [9, 21],
   //popupAnchor: [0, -14]
   popupAnchor: [0, -14]
 });
@@ -108,9 +108,20 @@ function renderChart(blockIndex, propertyIndex, marker, regressionLine) {
       minWidth = 900;
     }
 
+    var info = `<header>
+                  <h2>The property at</h2>
+                  <h1><em>${marker.address}</em></h1>
+                  <h2>is assessed</h2>
+                  <h1><em>${Math.abs(marker.taxStats.percent).toFixed(2)}%</em>
+                    ${marker.taxStats.percent < 0 ? 'lower' : 'higher'}
+                     ($${Math.abs(marker.taxStats.difference).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")})
+                  </h1>
+                  <h2>than properties on the same street.</h2>
+                </header>`;
+
     var popup = L.popup({ minWidth: minWidth, keepInView: true })
         .setLatLng(e.latlng)
-        .setContent('<canvas id="chart-' + markerIndex + '"></canvas>')
+        .setContent(info + '<canvas id="chart-' + markerIndex + '"></canvas>')
         .openOn(map);
 
     var ctx = document.getElementById('chart-' + markerIndex).getContext('2d');
@@ -147,7 +158,7 @@ function renderChart(blockIndex, propertyIndex, marker, regressionLine) {
             borderColor: 'blue',
           },
           {
-            label: 'Adjusted for square footage',
+            label: 'Best-fit average assessment',
             data: regressionLine,
             borderColor: 'lightblue',
           },
@@ -162,7 +173,7 @@ function renderChart(blockIndex, propertyIndex, marker, regressionLine) {
           xAxes: [{
             scaleLabel: {
               display: true,
-              labelString: 'Total developed square footage and lot size (sq feet)'
+              labelString: 'Total developed square footage and lot size'
             },
             type: 'linear',
             position: 'bottom',
@@ -217,23 +228,25 @@ markers.forEach(function(block, i) {
     /**
      * Calculate basic stats
      */
-    var taxStats = {
+    marker.taxStats = {
       difference: marker.assessment - regressionLine[j].y,
       percent: (marker.assessment / regressionLine[j].y) * 100 - 100,
     };
 
-    console.log(taxStats);
-
+    /**
+     * Determine appropriately coloured icon
+     */
     var icon;
-    if (taxStats.percent < 5) {
+    if (marker.taxStats.percent < 5) {
       icon = lightIcon;
     }
-    else if (taxStats.percent < 10) {
+    else if (marker.taxStats.percent < 10) {
       icon = mediumIcon;
     }
     else {
       icon = darkIcon;
     }
+
     L.marker([ marker.lat, marker.lng ], { icon: icon })
      .addTo(map).on('click', renderChart(i, j, marker, regressionLine));
   });
