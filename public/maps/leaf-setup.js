@@ -23,11 +23,8 @@ L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
  */
 var lightIcon = L.icon({
   iconUrl: '/maps/images/dollar-sign-light.svg',
-//  iconSize: [29, 24],
   iconSize: [29, 24],
-  //iconAnchor: [9, 21],
   iconAnchor: [9, 21],
-  //popupAnchor: [0, -14]
   popupAnchor: [0, -14]
 });
 
@@ -121,7 +118,7 @@ function renderChart(blockIndex, propertyIndex, marker, regressionLine) {
                   <h2>than properties on the same street.</h2>
                 </header>`;
 
-    var popup = L.popup({ minWidth: minWidth, keepInView: true })
+    var popup = L.popup({ minWidth: minWidth, maxHeight: document.documentElement.clientHeight - 100, keepInView: true })
         .setLatLng(e.latlng)
         .setContent(info + '<canvas id="chart-' + markerIndex + '"></canvas>')
         .openOn(map);
@@ -159,6 +156,7 @@ function renderChart(blockIndex, propertyIndex, marker, regressionLine) {
             data: points.slice(0, sortedMarkerIndex).concat(points.slice(sortedMarkerIndex + 1)),
             backgroundColor: 'blue',
             borderColor: 'blue',
+
           },
           {
             label: 'Best-fit average assessment',
@@ -198,6 +196,14 @@ function renderChart(blockIndex, propertyIndex, marker, regressionLine) {
               }
             }
           }]
+        },
+        tooltips: {
+          callbacks: {
+            title: function(tooltipItem, data) {
+              return [tooltipItem[0].xLabel.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' sq. feet',
+                      '$' + tooltipItem[0].yLabel.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")];
+            },
+          }
         }
       }
     });
