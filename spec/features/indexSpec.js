@@ -6,6 +6,8 @@ const Browser = require('zombie');
 const PORT = process.env.NODE_ENV === 'production' ? 3000 : 3001; 
 Browser.localhost('example.com', PORT);
 
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+
 describe('index', () => {
 
   let browser;
@@ -14,7 +16,7 @@ describe('index', () => {
     browser = new Browser({ waitDuration: '30s', loadCss: false });
     browser.visit('/', (err) => {
       if (err) {
-        done.fail(err);
+        return done.fail(err);
       }
       browser.assert.success();
       done();
