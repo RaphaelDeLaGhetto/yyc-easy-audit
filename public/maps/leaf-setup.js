@@ -13,7 +13,7 @@ var map = L.map('audit-map', {
   zoom: 20 
 });
 
-L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   subdomains: ['a', 'b', 'c']
 }).addTo(map);
@@ -203,6 +203,9 @@ function renderChart(blockIndex, propertyIndex, marker, regressionLine) {
               return [tooltipItem[0].xLabel.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' sq. feet',
                       '$' + tooltipItem[0].yLabel.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")];
             },
+            label: function(tooltipItem, data) {
+              return;
+            }
           }
         }
       }
