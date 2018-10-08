@@ -24,6 +24,7 @@ nav {
 
 header {
   text-align: center;
+  background-color: rgb(15,15,15,0.1);
 }
 
 header h1 {
@@ -33,6 +34,6 @@ header h1 {
 
 header h2 {
   font-size: 1em;
-  margin-top: .5em;
-  margin-bottom: .5em;
+  margin-top: .25em;
+  margin-bottom: .25em;
 }

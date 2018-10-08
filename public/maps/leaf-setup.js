@@ -114,7 +114,9 @@ function renderChart(blockIndex, propertyIndex, marker, regressionLine) {
                   <h2>is assessed</h2>
                   <h1><em>${Math.abs(marker.taxStats.percent).toFixed(2)}%</em>
                     ${marker.taxStats.percent < 0 ? 'lower' : 'higher'}
-                     ($${Math.abs(marker.taxStats.difference).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")})
+                    <em>
+                      ($${Math.abs(marker.taxStats.difference).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")})
+                    </em>
                   </h1>
                   <h2>than properties on the same street.</h2>
                 </header>`;
@@ -149,6 +151,7 @@ function renderChart(blockIndex, propertyIndex, marker, regressionLine) {
             data: [points[sortedMarkerIndex]],
             backgroundColor: 'red',
             borderColor: 'red',
+            pointRadius: 7,
           },
           {
             showLine: false,
