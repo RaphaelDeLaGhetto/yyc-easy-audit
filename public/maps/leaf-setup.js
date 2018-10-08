@@ -224,7 +224,17 @@ markers.forEach(function(block, i) {
 
     console.log(taxStats);
 
-    L.marker([ marker.lat, marker.lng ], { icon: lightIcon })
+    var icon;
+    if (taxStats.percent < 5) {
+      icon = lightIcon;
+    }
+    else if (taxStats.percent < 10) {
+      icon = mediumIcon;
+    }
+    else {
+      icon = darkIcon;
+    }
+    L.marker([ marker.lat, marker.lng ], { icon: icon })
      .addTo(map).on('click', renderChart(i, j, marker, regressionLine));
   });
 });
