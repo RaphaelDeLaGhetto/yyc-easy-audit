@@ -115,7 +115,9 @@ function renderChart(blockIndex, propertyIndex, marker, regressionLine) {
                       ($${Math.abs(marker.taxStats.difference).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",")})
                     </em>
                   </h1>
-                  <h2>than properties on the same street.</h2>
+                  <h2>than properties on the same street.
+                    <a href="/report/${marker.address.replace(/ /g, '_')}.pdf">Get Detailed Report</a>
+                  </h2>
                 </header>`;
 
     var popup = L.popup({ minWidth: minWidth, maxHeight: document.documentElement.clientHeight - 100, keepInView: true })
