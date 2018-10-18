@@ -28,10 +28,12 @@ importer.importCsv(csvFile, (err, results) => {
   importer.writeRecords(results, (err, results) => {
     if (err) {
       console.error(err.message);
-      process.exit(0);
+      // If this exits, neighbours will never be introduced.
+      // process.exit(0);
     }
 
     db.Report.introduceNeighbours((err, results) => {
+
       if (err) {
         console.error(err.message);
         process.exit(0);
