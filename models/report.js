@@ -12,6 +12,7 @@
 
 const GeoJSON = require('mongoose-geojson-schema');
 const uniqueValidator = require('mongoose-unique-validator');
+const upsertMany = require('@meanie/mongoose-upsert-many');
 
 module.exports = function(mongoose) {
   const Schema = mongoose.Schema;
@@ -283,6 +284,7 @@ module.exports = function(mongoose) {
   });
 
   ReportSchema.plugin(uniqueValidator);
+  ReportSchema.plugin(upsertMany);
 
   return ReportSchema;
 };

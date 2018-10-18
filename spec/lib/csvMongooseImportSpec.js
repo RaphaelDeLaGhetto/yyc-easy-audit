@@ -153,17 +153,12 @@ describe('csvMongooseImport', () => {
         expect(results.length).toEqual(results.length);
 
         importer.writeRecords(records, (err, results) => {
-          if (err) {
-            db.Report.find().then((results) => {
-              expect(results.length).toEqual(records.length);
-              return done();
-            }).catch((err) => {
-              done.fail(err);
-            });
-          }
-          else {
-            done.fail('This should have failed');
-          }
+          db.Report.find().then((results) => {
+            expect(results.length).toEqual(records.length);
+            done();
+          }).catch((err) => {
+            done.fail(err);
+          });
         });
       });
     });

@@ -218,8 +218,12 @@ describe('Report', () => {
             if (err) {
               return done.fail(err);
             }
-            records = results;
-            done();
+            Report.find().then(results => {
+              records = results;
+              done();
+            }).catch(err => {
+              done.fail(err);
+            });
           });
         });
       });
@@ -312,8 +316,12 @@ describe('Report', () => {
             if (err) {
               return done.fail(err);
             }
-            records = results;
-            done();
+            Report.find().then(results => {
+              records = results;
+              done();
+            }).catch(err => {
+              done.fail(err);
+            });
           });
         });
       });
@@ -366,18 +374,20 @@ describe('Report', () => {
           if (err) {
             return done.fail(err);
           }
-          records = results.sort((a, b) => {
-            if (a['Location Address'] < b['Location Address']) {
-              return -1;
-            }
-            else if (a['Location Address'] > b['Location Address']) {
-              return 1;
-            }
-            else {
+          Report.find().then(results => {
+            records = results.sort((a, b) => {
+              if (a['Location Address'] < b['Location Address']) {
+                return -1;
+              }
+              else if (a['Location Address'] > b['Location Address']) {
+                return 1;
+              }
               return 0;
-            }
+            });
+            done();
+          }).catch(err => {
+            done.fail(err);
           });
-          done();
         });
       });
     });
