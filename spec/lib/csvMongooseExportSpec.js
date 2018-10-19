@@ -4,6 +4,7 @@ const fs = require('fs');
 const exporter = require('../../lib/csvMongooseExport');
 const importer = require('../../lib/csvMongooseImport');
 const db = require('../../models');
+const mock = require('mock-fs');
 
 describe('csvMongooseExport', () => {
 
@@ -86,6 +87,68 @@ describe('csvMongooseExport', () => {
         });
 
         done();
+      });
+    });
+  });
+
+  describe('.writeFiles', () => {
+
+    let csvArr;
+    beforeEach(done => {
+      exporter.exportCsv((err, arr) => {
+        if (err) return done.fail(err);
+        expect(arr.length).toEqual(2);
+        csvArr = arr;
+        done(); 
+      });
+    });
+ 
+    describe('errors', () => {
+      it('returns an error if destination directory does not exist', done => {
+        exporter.writeFiles(csvArr, 'no/such/dir', (err) => {
+          if (err) {
+            expect(err).toEqual('Destination directory does not exist');
+            return done();
+          }
+          done.fail('This should have returned an error');
+        });
+      });
+    });
+
+    describe('output', () => {
+      let expected0, expected1;
+      beforeEach(done => {
+        fs.readFile('spec/data/expected-export-0.csv', 'utf8', (err, data) => {
+          if (err) return done(err);
+          expected0 = data.trim().split('\n');
+          fs.readFile('spec/data/expected-export-1.csv', 'utf8', (err, data) => {
+            if (err) return done(err);
+            expected1 = data.trim().split('\n');
+            mock({
+              'path/to/dest/dir': {},
+            });
+            done(); 
+          });
+        });
+      });
+  
+      afterEach(() => {
+        mock.restore();
+      });
+  
+      it('writes a CSV file to the destination directory for every block in the database', done => {
+        exporter.writeFiles(csvArr, 'path/to/dest/dir', (err) => {
+          if (err) {
+            return done.fail(err);
+          }
+          fs.readdir('path/to/dest/dir', (err, files) => {
+            if (err) return done.fail(err);
+            expect(files.length).toEqual(2);
+            expect(files[0]).toEqual('consolidated-0.csv');
+            expect(files[1]).toEqual('consolidated-1.csv');
+            done();
+          });
+        });
       });
     });
   });
