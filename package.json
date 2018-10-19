@@ -29,6 +29,7 @@
   "devDependencies": {
     "command-line-test": "^1.0.10",
     "jasmine": "^3.2.0",
+    "mock-fs": "^4.7.0",
     "pow-mongoose-fixtures": "^0.3.0",
     "superagent-mock": "^3.7.0",
     "zombie": "^6.1.3"
