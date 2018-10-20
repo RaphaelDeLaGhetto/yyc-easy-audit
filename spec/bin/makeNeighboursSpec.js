@@ -31,7 +31,7 @@ describe('./bin/makeNeighbours.sh', () => {
         }
         expect(res.stderr).toMatch('No source property provided');
         expect(res.stderr).toMatch('Which way? asc|desc');
-        expect(res.stderr).toMatch('No destination property provided');
+//        expect(res.stderr).toMatch('No destination property provided');
         done();
       });
     });
@@ -112,6 +112,44 @@ describe('./bin/makeNeighbours.sh', () => {
             expect(results[1]['Descending Neighbour']).toEqual(results[0]._id);
 
             done(); 
+          }).catch(err => {
+            done.fail(err);
+          });
+        });
+      }).catch(err => {
+        done.fail(err);
+      });
+    });
+
+    it('breaks a property\'s ascending neighbour if destination address is omitted', done => {
+      db.Report.findOne({ 'Location Address': '421 FAKE ST NW' }).then(result => {
+        expect(result['Ascending Neighbour']).toBeDefined();
+        cli.exec('./bin/makeNeighbours.sh "421 FAKE ST NW" asc', (err, res) => {
+          if (err) {
+            return done.fail(err);
+          }
+          db.Report.findOne({ 'Location Address': '421 FAKE ST NW' }).then(result => {
+            expect(result['Ascending Neighbour']).toBeNull();
+            done();    
+          }).catch(err => {
+            done.fail(err);
+          });
+        });
+      }).catch(err => {
+        done.fail(err);
+      });
+    });
+
+    it('breaks a property\'s descending neighbour if destination address is omitted', done => {
+      db.Report.findOne({ 'Location Address': '421 FAKE ST NW' }).then(result => {
+        expect(result['Descending Neighbour']).toBeDefined();
+        cli.exec('./bin/makeNeighbours.sh "421 FAKE ST NW" desc', (err, res) => {
+          if (err) {
+            return done.fail(err);
+          }
+          db.Report.findOne({ 'Location Address': '421 FAKE ST NW' }).then(result => {
+            expect(result['Descending Neighbour']).toBeNull();
+            done();    
           }).catch(err => {
             done.fail(err);
           });

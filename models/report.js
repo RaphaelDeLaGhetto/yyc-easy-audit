@@ -292,31 +292,56 @@ module.exports = function(mongoose) {
    * @param Function 
    */
   ReportSchema.statics.makeNeighbours = function(src, dir, dest, done) {
-    this.find({ 'Location Address': { $in: [src, dest] }}).then(results => {
-      let srcIndex = results.findIndex(result => result['Location Address'] === src);
-      let destIndex = results.findIndex(result => result['Location Address'] === dest);
 
-      let msg = 'These neighbours did not meet';
-
-      if (dir === 'asc') {
-        results[srcIndex]['Descending Neighbour'] = results[destIndex]._id;
-        results[destIndex]['Ascending Neighbour'] = results[srcIndex]._id;
-        msg = `${results[srcIndex]['Location Address']} is up from ${results[destIndex]['Location Address']}`;
-      }
-      else if (dir === 'desc') {
-        results[srcIndex]['Ascending Neighbour'] = results[destIndex]._id;
-        results[destIndex]['Descending Neighbour'] = results[srcIndex]._id;
-        msg = `${results[srcIndex]['Location Address']} is down from ${results[destIndex]['Location Address']}`;
-      }
-
-      this.upsertMany(results, ['Roll Number']).then(results => {
-        done(null, msg);
+    // Break neighbour commitment if dest is null
+    if (!dest) {
+      this.findOne({ 'Location Address': src }).then(result => {
+        let msg = 'No bridges burned';
+        
+        if (dir === 'asc') {
+          result['Ascending Neighbour'] = null;
+          msg = `${result['Location Address']} is at the top of the block`
+        }
+        else if (dir === 'desc') {
+          result['Descending Neighbour'] = null;
+          msg = `${result['Location Address']} is at the bottom of the block`
+        }
+        result.save().then(result => {
+          done(null, msg);
+        }).catch(err => {
+          done(err);
+        });
+      }).catch(err => {
+        done(err);
+      });     
+    }
+    else {
+      this.find({ 'Location Address': { $in: [src, dest] }}).then(results => {
+        let srcIndex = results.findIndex(result => result['Location Address'] === src);
+        let destIndex = results.findIndex(result => result['Location Address'] === dest);
+  
+        let msg = 'These neighbours did not meet';
+  
+        if (dir === 'asc') {
+          results[srcIndex]['Descending Neighbour'] = results[destIndex]._id;
+          results[destIndex]['Ascending Neighbour'] = results[srcIndex]._id;
+          msg = `${results[srcIndex]['Location Address']} is up from ${results[destIndex]['Location Address']}`;
+        }
+        else if (dir === 'desc') {
+          results[srcIndex]['Ascending Neighbour'] = results[destIndex]._id;
+          results[destIndex]['Descending Neighbour'] = results[srcIndex]._id;
+          msg = `${results[srcIndex]['Location Address']} is down from ${results[destIndex]['Location Address']}`;
+        }
+  
+        this.upsertMany(results, ['Roll Number']).then(results => {
+          done(null, msg);
+        }).catch(err => {
+          done(err);
+        });
       }).catch(err => {
         done(err);
       });
-    }).catch(err => {
-      done(err);
-    });
+    }
   };
 
   ReportSchema.plugin(uniqueValidator);

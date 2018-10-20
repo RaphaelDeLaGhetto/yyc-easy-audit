@@ -8,11 +8,13 @@ program
   .version('0.0.0', '-v, --version')
   .arguments('<SourceProperty>')
   .arguments('[asc|desc]')
-  .arguments('<DestinationProperty>')
+  .arguments('[DestinationProperty...]')
   .action(function (src, dir, dest) {
      srcProp = src;
      relationshipDirection = dir;
-     destProp = dest;
+     if (dest) {
+       destProp = dest[0];
+     }
   });
 
 program.parse(process.argv);
@@ -25,11 +27,6 @@ if (typeof srcProp === 'undefined') {
 
 if (typeof relationshipDirection === 'undefined') {
   console.error('Which way? asc|desc');
-  err = true;
-}
-
-if (typeof destProp === 'undefined') {
-  console.error('No destination property provided');
   err = true;
 }
 

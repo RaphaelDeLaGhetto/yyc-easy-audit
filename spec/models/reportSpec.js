@@ -762,7 +762,6 @@ describe('Report', () => {
       });
     });
 
-
     it('sets a property\'s ascending neighbour', done => {
       db.Report.find({ 'Location Address': { $in: ['405 FAKE ST NW', '371 FAKE ST NW'] }})
                .sort('Location Address').then(results => {
@@ -812,6 +811,50 @@ describe('Report', () => {
             expect(results[0]['Ascending Neighbour']).toEqual(results[1]._id);
             expect(results[1]['Location Address']).toEqual('371 FAKE ST NW');
             expect(results[1]['Descending Neighbour']).toEqual(results[0]._id);
+
+            done(); 
+          }).catch(err => {
+            done.fail(err);
+          });
+        });
+      }).catch(err => {
+        done.fail(err);
+      });
+    });
+
+    it('sets a property\'s ascending neighbour to null if destination address is null', done => {
+      db.Report.findOne({ 'Location Address': '421 FAKE ST NW' }).then(result => {
+        expect(result['Ascending Neighbour']).toBeDefined();
+
+        db.Report.makeNeighbours('421 FAKE ST NW', 'asc', null, (err, msg) => {
+          if (err) {
+            return done.fail(err);
+          }
+          expect(msg).toEqual(`${result['Location Address']} is at the top of the block`);
+          db.Report.findOne({ 'Location Address': '421 FAKE ST NW' }).then(result => {
+            expect(result['Ascending Neighbour']).toBeNull();
+
+            done(); 
+          }).catch(err => {
+            done.fail(err);
+          });
+        });
+      }).catch(err => {
+        done.fail(err);
+      });
+    });
+
+    it('sets a property\'s descending neighbour to null if destination address is null', done => {
+      db.Report.findOne({ 'Location Address': '421 FAKE ST NW' }).then(result => {
+        expect(result['Descending Neighbour']).toBeDefined();
+ 
+        db.Report.makeNeighbours('421 FAKE ST NW', 'desc', null, (err, msg) => {
+          if (err) {
+            return done.fail(err);
+          }
+          expect(msg).toEqual(`${result['Location Address']} is at the bottom of the block`);
+          db.Report.findOne({ 'Location Address': '421 FAKE ST NW' }).then(result => {
+            expect(result['Descending Neighbour']).toBeNull();
 
             done(); 
           }).catch(err => {
