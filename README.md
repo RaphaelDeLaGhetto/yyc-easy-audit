@@ -61,6 +61,41 @@ This plots property info on the map:
 ./bin/makeMarkers.sh public/maps/markers.json
 ```
 
+## Retrieve consolidated CSV block data
+
+This data is formatted for use with [the proptax report-generator](https://github.com/TaxReformYYC/report-generator-2018)
+
+```
+./bin/getReportData.sh path/to/dest/dir
+```
+
+To generate reports for all consolidated CSV files, execute the following from inside the directory containing the CSV data:
+
+```
+for X in *.csv; do cp "$X" consolidated.csv && proptax reports .; done
+```
+
+## Manually fix broken neighbour relationships
+
+This will show the neighbours in descending order down the block:
+
+```
+./bin/showNeighbours.sh "5 FAKE ST NW"
+```
+
+Make corrections like this:
+
+```
+./bin/makeNeighbours.sh "5 FAKE ST NW" desc "13 FAKE ST NW"
+```
+
+Break a neighbour relationship by leaving the destination address empty:
+
+```
+./bin/makeNeighbours.sh "5 FAKE ST NW" desc
+./bin/makeNeighbours.sh "13 FAKE ST NW" asc
+```
+
 # Setup
 
 ## Testing
