@@ -142,20 +142,12 @@ module.exports = function(mongoose) {
         if (houseNum - descNum <= 4) {
           this['Descending Neighbour'] = results[descIndex]._id;
         }
-
-        if (ascIndex < results.length) {
-          // Street check
-          if (ascNum - houseNum <= 4) {
-            this['Ascending Neighbour'] = results[ascIndex]._id;
-          }
-        }
       }
-      else {
-        if (ascIndex < results.length) {
-          // Street check
-          if (ascNum - houseNum <= 4) {
-            this['Ascending Neighbour'] = results[ascIndex]._id;
-          }
+
+      if (ascIndex < results.length) {
+        // Street check
+        if (ascNum - houseNum <= 4) {
+          this['Ascending Neighbour'] = results[ascIndex]._id;
         }
       }
 
