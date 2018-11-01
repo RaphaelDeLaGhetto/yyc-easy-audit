@@ -360,6 +360,126 @@ describe('Report', () => {
         });
       });
     });
+
+    /**
+     * Odd address are one side, even addresses are the other
+     */
+    describe('two-sided streets', () => {
+      let records;
+      beforeEach((done) => {
+        importer.importCsv('spec/data/2018-two-sided-street.csv', (err, arr) => {
+          if (err) {
+            return done.fail(err);
+          }
+          expect(arr.length).toEqual(20);
+          importer.writeRecords(arr, (err, results) => {
+            if (err) {
+              return done.fail(err);
+            }
+            Report.find().then(results => {
+              records = results;
+              done();
+            }).catch(err => {
+              done.fail(err);
+            });
+          });
+        });
+      });
+
+      it('only sets neighbours on the even-addressed side of the street', done => {
+        expect(records[0]['Location Address']).toEqual('22 FAKE CL NW');
+        records[0].meetNeighbours((err, result) => {
+          if (err) {
+            return done.fail(err);
+          }
+          expect(result._id).toEqual(records[0]._id);
+          expect(result['Location Address']).toEqual('22 FAKE CL NW');
+  
+          expect(result['Ascending Neighbour']).toEqual(records[2]._id);
+          expect(result['Descending Neighbour']).toEqual(records[19]._id);  
+          done();
+        });
+      });
+
+      it('sets nothing when there is no even ascending neighbour', (done) => {
+        expect(records[1]['Location Address']).toEqual('42 FAKE CL NW');
+        records[1].meetNeighbours((err, result) => {
+          if (err) {
+            return done.fail(err);
+          }
+          expect(result._id).toEqual(records[1]._id);
+          expect(result['Location Address']).toEqual('42 FAKE CL NW');
+  
+          expect(result['Ascending Neighbour']).toBeUndefined();
+          expect(result['Descending Neighbour']).toEqual(records[14]._id);
+  
+          done();
+        });
+      });
+  
+      it('sets nothing when there is no even descending neighbour', (done) => {
+        expect(records[4]['Location Address']).toEqual('6 FAKE CL NW');
+        records[4].meetNeighbours((err, result) => {
+          if (err) {
+            return done.fail(err);
+          }
+          expect(result._id).toEqual(records[4]._id);
+          expect(result['Location Address']).toEqual('6 FAKE CL NW');
+  
+          expect(result['Ascending Neighbour']).toEqual(records[6]._id);
+          expect(result['Descending Neighbour']).toBeUndefined();
+  
+          done();
+        });
+      });
+
+      it('only sets neighbours on the odd-addressed side of the street', done => {
+        expect(records[3]['Location Address']).toEqual('33 FAKE CL NW');
+        records[3].meetNeighbours((err, result) => {
+          if (err) {
+            return done.fail(err);
+          }
+          expect(result._id).toEqual(records[3]._id);
+          expect(result['Location Address']).toEqual('33 FAKE CL NW');
+  
+          expect(result['Ascending Neighbour']).toEqual(records[9]._id);
+          expect(result['Descending Neighbour']).toEqual(records[11]._id);  
+          done();
+        });
+      });
+
+      it('sets nothing when there is no odd ascending neighbour', (done) => {
+        expect(records[17]['Location Address']).toEqual('53 FAKE CL NW');
+        records[17].meetNeighbours((err, result) => {
+          if (err) {
+            return done.fail(err);
+          }
+          expect(result._id).toEqual(records[17]._id);
+          expect(result['Location Address']).toEqual('53 FAKE CL NW');
+  
+          expect(result['Ascending Neighbour']).toBeUndefined();
+          expect(result['Descending Neighbour']).toEqual(records[18]._id);
+  
+          done();
+        });
+      });
+  
+      it('sets nothing when there is no odd descending neighbour', (done) => {
+        expect(records[7]['Location Address']).toEqual('17 FAKE CL NW');
+        records[7].meetNeighbours((err, result) => {
+          if (err) {
+            return done.fail(err);
+          }
+          expect(result._id).toEqual(records[7]._id);
+          expect(result['Location Address']).toEqual('17 FAKE CL NW');
+  
+          expect(result['Ascending Neighbour']).toEqual(records[5]._id);
+          expect(result['Descending Neighbour']).toBeUndefined();
+  
+          done();
+        });
+      });
+    });
   });
 
   describe('.introduceNeighbours', () => {

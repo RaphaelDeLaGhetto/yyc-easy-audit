@@ -93,8 +93,14 @@ module.exports = function(mongoose) {
     const streetName = this['Location Address'].replace(/^\d+\w* /, '');
     this.model('Report').
         find({ 'Location Address': { $regex: streetName } }).
-        select({'Location Address': 1}).
-        sort({ 'Location Address' : 'asc'}).then((results) => {
+        select({'Location Address': 1}).then((results) => {
+
+      // Alphabetical sorting can't be trusted with numeric values
+      results = results.sort((a, b) => {
+        a = parseInt(a['Location Address'].match(/^\d+\w* /)[0]);
+        b = parseInt(b['Location Address'].match(/^\d+\w* /)[0]);
+        return a - b;
+      });
 
       // No known neighbours
       if (results.length === 1) {
@@ -108,31 +114,48 @@ module.exports = function(mongoose) {
         }
       }
 
-      let houseNum = parseInt(results[index]['Location Address'].match(/^\d+\w* /)[0]);
-      if (index) {
-        let descNum = parseInt(results[index - 1]['Location Address'].match(/^\d+\w* /)[0]);
+      const houseNum = parseInt(results[index]['Location Address'].match(/^\d+\w* /)[0]);
+      const isOddNumbered = houseNum % 2;
 
+      /**
+       * Respect even-odd sides of street
+       */
+      let descIndex, descNum;
+      for (descIndex = index - 1; descIndex >= 0; descIndex--){
+        descNum = parseInt(results[descIndex]['Location Address'].match(/^\d+\w* /)[0]);
+        if ((isOddNumbered && descNum % 2) || (!isOddNumbered && !(descNum % 2))) {
+          break;
+        }
+      }
+
+      let ascIndex, ascNum;
+      for (ascIndex = index + 1; ascIndex < results.length; ascIndex++){
+        ascNum = parseInt(results[ascIndex]['Location Address'].match(/^\d+\w* /)[0]);
+        if ((isOddNumbered && ascNum % 2) || (!isOddNumbered && !(ascNum % 2))) {
+          break;
+        }
+      }
+
+      if (descIndex >= 0) {
         // If the difference between house numbers is greater than 4, it is
         // assumed they are seperated by a street (for now)
         if (houseNum - descNum <= 4) {
-          this['Descending Neighbour'] = results[index - 1]._id;
+          this['Descending Neighbour'] = results[descIndex]._id;
         }
 
-        if (index < results.length - 1) {
-          let ascNum = parseInt(results[index + 1]['Location Address'].match(/^\d+\w* /)[0]);
-
+        if (ascIndex < results.length) {
           // Street check
           if (ascNum - houseNum <= 4) {
-            this['Ascending Neighbour'] = results[index + 1]._id;
+            this['Ascending Neighbour'] = results[ascIndex]._id;
           }
         }
       }
       else {
-        let ascNum = parseInt(results[1]['Location Address'].match(/^\d+\w* /)[0]);
-
-        // Street check
-        if (ascNum - houseNum <= 4) {
-          this['Ascending Neighbour'] = results[1]._id;
+        if (ascIndex < results.length) {
+          // Street check
+          if (ascNum - houseNum <= 4) {
+            this['Ascending Neighbour'] = results[ascIndex]._id;
+          }
         }
       }
 
