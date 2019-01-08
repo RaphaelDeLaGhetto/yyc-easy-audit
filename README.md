@@ -13,16 +13,16 @@ Collect as many reports as you can and store them in a directory.
 
 ## Consolidate the data
 
-As with data collection, there is currently only one way for a citizen to consolidate the data for analysis: [the proptax report-generator](https://github.com/TaxReformYYC/report-generator-2018). The current version of this software processes 2018 PDF residential property reports. The software is updated every year as the format and content of the PDF property reports changes.
+As with data collection, there is currently only one way for a citizen to consolidate the data for analysis: [the proptax report-generator](https://github.com/TaxReformYYC/report-generator-2019). The current version of this software processes 2019 PDF residential property reports. The software is updated every year as the format and content of the PDF property reports changes.
 
 ### proptax
 
-Install as [directed](https://github.com/TaxReformYYC/report-generator-2018).
+Install as [directed](https://github.com/TaxReformYYC/report-generator-2019).
 
-Supposing all the PDF reports are stored in `~/2018-property-reports`, execute the following:
+Supposing all the PDF reports are stored in `~/2019-property-reports`, execute the following:
 
 ```
-proptax consolidate ~/2018-property-reports > consolidated.csv
+proptax consolidate ~/2019-property-reports > consolidated.csv
 ```
 
 This will create a file called `consolidated.csv`, which will be imported into the `yyc-easy-audit` database.
@@ -63,7 +63,7 @@ This plots property info on the map:
 
 ## Retrieve consolidated CSV block data
 
-This data is formatted for use with [the proptax report-generator](https://github.com/TaxReformYYC/report-generator-2018)
+This data is formatted for use with [the proptax report-generator](https://github.com/TaxReformYYC/report-generator-2019)
 
 ```
 ./bin/getReportData.sh path/to/dest/dir
