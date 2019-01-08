@@ -37,7 +37,15 @@ From the application directory:
 ./bin/import.sh ../path/to/consolidated.csv
 ```
 
-## GET address coordinates
+## GET address coordinates from data.calgary.ca
+
+Latitude and longitude provided by [City of Calgary](https://data.calgary.ca/Base-Maps/Parcel-Address-and-lat-long/s8b3-j88p). Download as CSV and execute:
+
+```
+./bin/importLatLong.sh data/lat-long.csv
+```
+
+## GET address coordinates from Google
 
 This script inserts GPS coordinates into the database for the properties without. Provide a filename to save coordinates for later:
 
