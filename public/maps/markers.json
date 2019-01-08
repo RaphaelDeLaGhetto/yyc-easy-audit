@@ -1,4 +1,4 @@
-markers = [
+markers = [[
    {
      "name": "Canada",
      "url": "https://en.wikipedia.org/wiki/Canada",
@@ -83,4 +83,4 @@ markers = [
      "lat": 36.204824,
      "lng": 138.252924
    }
-];
+]];
