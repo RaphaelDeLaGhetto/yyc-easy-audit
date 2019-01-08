@@ -72,6 +72,12 @@ for X in data/consolidated/*; do ./bin/import.sh "$X"; done
 Get GPS coordinates and load into database:
 
 ```
+./bin/importLatLong.sh data/lat-long.csv
+```
+
+## From Google Map API
+
+```
 ./bin/geoJsonImport.sh data/gps.json
 ./bin/loadSavedCoords.sh data/gps.json
 ```
